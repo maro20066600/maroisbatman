@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { database } from '@/lib/firebase';
-import { ref, push, query, orderByChild, get, equalTo } from 'firebase/database';
+import { ref, push } from 'firebase/database';
 import { sendToGoogleSheets } from '@/lib/googleSheets';
 import { verifyRecaptcha } from '@/lib/recaptcha';
 import type { VolunteerFormData } from '@/lib/googleSheets';
@@ -55,14 +55,6 @@ export default function ContactForm() {
         acceptTerms: false
     });
 
-    // التحقق من وجود رقم الموبايل أو البريد الإلكتروني
-    const checkDuplicate = async (field: 'mobile' | 'email', value: string) => {
-        const submissionsRef = ref(database, 'submissions');
-        const fieldQuery = query(submissionsRef, orderByChild(field), equalTo(value));
-        const snapshot = await get(fieldQuery);
-        return snapshot.exists();
-    };
-
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         
@@ -103,17 +95,6 @@ export default function ContactForm() {
             const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
             if (!emailRegex.test(formData.email)) {
                 throw new Error('البريد الإلكتروني غير صحيح');
-            }
-
-            // التحقق من عدم وجود تسجيل سابق
-            const isMobileDuplicate = await checkDuplicate('mobile', formData.mobile);
-            if (isMobileDuplicate) {
-                throw new Error('رقم الموبايل مسجل مسبقاً');
-            }
-
-            const isEmailDuplicate = await checkDuplicate('email', formData.email);
-            if (isEmailDuplicate) {
-                throw new Error('البريد الإلكتروني مسجل مسبقاً');
             }
 
             setStatus({ type: 'info', message: 'جاري إرسال البيانات...' });
