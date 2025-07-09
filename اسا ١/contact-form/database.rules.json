@@ -1,0 +1,9 @@
+{
+  "rules": {
+    "submissions": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["mobile", "email"]
+    }
+  }
+} 
